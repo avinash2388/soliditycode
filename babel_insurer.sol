@@ -30,7 +30,7 @@ contract User is mortal{
 
 
 	}
-
+	/*This function will be used to register to insurer and status will be updated as active*/
 	function registerToinsurer(address _insurerAddress) public {
 
 		services[_insurerAddress] = Service({
@@ -39,7 +39,7 @@ contract User is mortal{
 			});
 
 	}
-
+	/*This fuction will be used by insurer to set the due amount to any user and it will reflect in his acount*/
 	function setDue(uint256 _due) public{
 		if(services[msg.sender].active){
 	
@@ -47,13 +47,11 @@ contract User is mortal{
 
 		}
 	}
-
+	/*This function will be used to pay the due premium to insurer*/
 	function payToinsurer(address _insurerAddress) public{
 		_insurerAddress.transfer((services[_insurerAddress].due));
 
 	}
-
-
 
 
 }
