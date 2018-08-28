@@ -10,52 +10,75 @@ contract RaiseFundsForACause {
     mapping(address => uint256) donationData;
     mapping (address => uint256) balanceOf;
 
-    /* Initializes contract with initial supply tokens to the creator of the contract */
-   /* function RaiseFundsForACause() public {
-        balanceOf[msg.sender] = msg.value;              // Give the creator all initial tokens
-    }
-    */
+    
     
     struct projectDet  {
         
         string projectTitle;
         string projectDescription;
-        uint256 projectGoal;
+        string user;
+        uint256 dateOfPost;
+        uint256 fundGoal;
         string  status;
         
     }
     
-    mapping (address => projectDet) public projectDetails;
-    address[]  projectAcctsList;
+    mapping (uint => address) public projectToOwner;
+    uint [] public projectIdList;
+    projectDet[]  public projectDetails;
+    event projAdded(uint id);
+    event transferred(uint amount , address receiver );
 
   
-    function addProject(string _projectTitle ,string _projectDescription ,uint256 _projectGoal) public {
-     
-        projectDetails[msg.sender].projectTitle = _projectTitle;
-        projectDetails[msg.sender].projectDescription= _projectDescription;
-        projectDetails[msg.sender].projectGoal = _projectGoal;
-        projectDetails[msg.sender].status = 'open';
-        projectAcctsList.push(msg.sender) -1;
+    function addProject(string _title ,string _description ,string _user , uint256 _dateOfPost , uint256 _fundGoal) public {
+        
+        uint id = projectDetails.push(projectDet(_title, _description, _user, _dateOfPost, _fundGoal, "open" )) -1;
+        projectIdList.push(id);
+        projectToOwner[id] = msg.sender;
+        
+        emit projAdded(id);
     }
 
-    
-    
-    function projectAccountList() view public returns(address[]) {
-       return projectAcctsList;
-    //    projectDetails[projectAccts[1]].projectTitle;
+    function getCount() public view returns(uint) {
+        return projectIdList.length;
     }
     
-    
-
+    function brosweproject(uint _id) public view returns(string , string , uint256 , uint256 , string , address) {
+       return (projectDetails[_id].projectTitle , projectDetails[_id].projectDescription ,projectDetails[_id].dateOfPost , projectDetails[_id].fundGoal , projectDetails[_id].status , projectToOwner[_id]); 
   
-    function transfer(address _receiever, uint256 _amount) public payable {
+    }
+    
+   
+   function getAll(uint _id) public view returns(uint , string) {
+         return (projectIdList[_id] , projectDetails[_id].projectTitle);
+   }
+    
+    function getOpen(uint _id) public view returns(uint , string ) {
+         
+           if (uint256(keccak256(projectDetails[_id].status))  == uint256(keccak256("open"))) {
+           return (projectIdList[_id] , projectDetails[_id].projectTitle);
+           }
+    
+    }
+    
+    function getClosed(uint _id) public view returns(uint , string) {
+        if (uint256(keccak256(projectDetails[_id].status))  == uint256(keccak256("closed"))) {
+           return (projectIdList[_id] , projectDetails[_id].projectTitle);
+           }
+   }
+   
+   function setStatus(uint id) {
+       
+   }
+    
+    function transfer(address _receiever, uint256 _amount) public payable  {
        // require(balanceOf[msg.sender] >= _value);           // Check if the sender has enough
       //  balanceOf[msg.sender] -= _value;                    // Subtract from the sender
       //  balanceOf[_to] += _value;                           // Add the same to the recipient
       if(msg.sender.balance > _amount){
        _receiever.transfer(_amount);
-      }
+     }
+      emit transferred(_amount , _receiever );
     }
-
 
 }
